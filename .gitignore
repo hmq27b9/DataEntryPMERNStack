@@ -1,0 +1,5 @@
+node_modules
+dist
+views/node_modules
+views/dist
+.env
