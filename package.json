@@ -20,7 +20,6 @@
     "pg": "^8.23.1"
   },
   "devDependencies": {
-    "@types/argon2": "^0.15.4",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
