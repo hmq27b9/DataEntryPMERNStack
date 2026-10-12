@@ -4,14 +4,36 @@
   padding: 0;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  background: #f4f5f7;
-  color: #222;
-  min-height: 100vh;
+    ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  background: #fff;
+  color: #000;
+  -webkit-font-smoothing: antialiased;
+}
+
+input,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input:focus,
+button:focus {
+  outline: none;
+}
+
+input:focus {
+  border-color: #000;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

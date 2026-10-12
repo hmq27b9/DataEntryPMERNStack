@@ -1,31 +1,25 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-
-type Mode = "login" | "register";
+import { AuthUser, useAuth } from "../context/AuthContext";
 
 interface FormState {
-  username: string;
   email: string;
   password: string;
 }
 
 interface AuthResponse {
-  user: { id: number; username: string; email: string };
-  token: string;
+  user?: AuthUser;
+  token?: string;
   error?: string;
 }
 
 export default function LoginView() {
-  const [mode, setMode] = useState<Mode>("login");
-  const [form, setForm] = useState<FormState>({
-    username: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState<FormState>({ email: "", password: "" });
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,25 +30,21 @@ export default function LoginView() {
     setError("");
     setLoading(true);
 
-    const endpoint =
-      mode === "login" ? "/api/auth/login" : "/api/auth/register";
-
-    const body =
-      mode === "login" ? { email: form.email, password: form.password } : form;
-
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(body),
+        body: JSON.stringify(form),
       });
 
       const data: AuthResponse = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      if (!res.ok || !data.token || !data.user) {
+        throw new Error(data.error || "Login failed");
+      }
 
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      login(data.token, data.user);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -65,127 +55,97 @@ export default function LoginView() {
   return (
     <>
       <Header />
-      <div style={styles.container}>
-        <form style={styles.card} onSubmit={handleSubmit}>
-          <h2 style={{ marginBottom: "1rem" }}>
-            {mode === "login" ? "Login" : "Register"}
-          </h2>
+      <main style={styles.main}>
+        <form style={styles.form} onSubmit={handleSubmit}>
+          <h1 style={styles.title}>Sign in</h1>
 
-          {error && <div style={styles.error}>{error}</div>}
-
-          {mode === "register" && (
+          <label style={styles.label}>
+            email
             <input
               style={styles.input}
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={form.username}
+              type="email"
+              name="email"
+              value={form.email}
               onChange={handleChange}
+              autoComplete="username"
               required
             />
-          )}
+          </label>
 
-          <input
-            style={styles.input}
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+          <label style={styles.label}>
+            password
+            <input
+              style={styles.input}
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              autoComplete="current-password"
+              required
+            />
+          </label>
 
-          <input
-            style={styles.input}
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          {error && <p style={styles.error}>{error}</p>}
 
           <button style={styles.button} type="submit" disabled={loading}>
-            {loading
-              ? "Please wait..."
-              : mode === "login"
-                ? "Login"
-                : "Sign Up"}
+            {loading ? "..." : "continue"}
           </button>
-
-          <p style={styles.switchText}>
-            {mode === "login" ? "No account?" : "Already have an account?"}{" "}
-            <span
-              style={styles.link}
-              onClick={() => {
-                setMode(mode === "login" ? "register" : "login");
-                setError("");
-              }}
-            >
-              {mode === "login" ? "Register" : "Login"}
-            </span>
-          </p>
         </form>
-      </div>
+      </main>
     </>
   );
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: "calc(100vh - 60px)",
+  main: {
+    minHeight: "calc(100vh - 57px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    padding: "1rem",
+    padding: "2rem 1rem",
   },
-  card: {
-    background: "#fff",
-    padding: "2.5rem",
-    borderRadius: "12px",
-    boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+  form: {
     width: "100%",
-    maxWidth: "380px",
+    maxWidth: "320px",
     display: "flex",
     flexDirection: "column",
+    gap: "1.25rem",
+  },
+  title: {
+    fontSize: "1.25rem",
+    fontWeight: 400,
+    letterSpacing: "0.02em",
+    marginBottom: "0.5rem",
+  },
+  label: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    fontSize: "0.75rem",
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
   },
   input: {
-    padding: "0.75rem 1rem",
-    marginBottom: "1rem",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    outline: "none",
+    padding: "0.6rem 0",
+    border: "none",
+    borderBottom: "1px solid #000",
+    background: "transparent",
+    fontSize: "0.95rem",
   },
   button: {
-    padding: "0.75rem",
-    background: "#667eea",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "1rem",
-    fontWeight: 600,
-    cursor: "pointer",
     marginTop: "0.5rem",
+    padding: "0.75rem 1rem",
+    background: "#000",
+    color: "#fff",
+    border: "1px solid #000",
+    fontSize: "0.85rem",
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    cursor: "pointer",
   },
   error: {
-    background: "#fee",
-    color: "#c33",
-    padding: "0.75rem",
-    borderRadius: "8px",
-    marginBottom: "1rem",
-    fontSize: "0.9rem",
-  },
-  switchText: {
-    textAlign: "center",
-    marginTop: "1rem",
-    fontSize: "0.9rem",
-    color: "#666",
-  },
-  link: {
-    color: "#667eea",
-    cursor: "pointer",
-    fontWeight: 600,
+    fontSize: "0.8rem",
+    borderLeft: "2px solid #000",
+    paddingLeft: "0.75rem",
   },
 };

@@ -1,40 +1,7 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import UserModel from "../models/userModel";
 import { signToken } from "../utils/jwt";
-
-const SALT_ROUNDS = 10;
-
-export const register = async (req: Request, res: Response): Promise<void> => {
-  const { username, email, password } = req.body as {
-    username?: string;
-    email?: string;
-    password?: string;
-  };
-
-  if (!username || !email || !password) {
-    res.status(400).json({ error: "All fields are required" });
-    return;
-  }
-
-  try {
-    const existing = await UserModel.findByEmail(email);
-    if (existing) {
-      res.status(409).json({ error: "Email already registered" });
-      return;
-    }
-
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await UserModel.create({ username, email, hashedPassword });
-    const token = signToken({ id: user.id, email: user.email });
-
-    res.cookie("token", token, { httpOnly: true });
-    res.status(201).json({ user, token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body as {
@@ -54,7 +21,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    let isMatch = false;
+    try {
+      isMatch = await argon2.verify(user.password_hash, password);
+    } catch {
+      isMatch = false;
+    }
+
     if (!isMatch) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
