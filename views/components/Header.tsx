@@ -1,3 +1,4 @@
+//views/components/Header.tsx
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 

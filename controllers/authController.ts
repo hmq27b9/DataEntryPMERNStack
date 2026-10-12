@@ -1,7 +1,11 @@
+//controllers/authController.ts
 import { Request, Response } from "express";
 import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 import UserModel from "../models/userModel";
-import { signToken } from "../utils/jwt";
+
+const SECRET = process.env.JWT_SECRET as string;
+if (!SECRET) throw new Error("JWT_SECRET is not defined in .env");
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body as {
@@ -33,15 +37,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = signToken({ id: user.id, email: user.email });
-    res.cookie("token", token, { httpOnly: true });
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, {
+      expiresIn: "1h",
+    });
 
+    res.cookie("token", token, { httpOnly: true });
     res.json({
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
+      user: { id: user.id, username: user.username, email: user.email },
       token,
     });
   } catch (err) {

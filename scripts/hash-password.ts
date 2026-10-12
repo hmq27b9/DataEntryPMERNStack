@@ -1,3 +1,4 @@
+//scripts/hash-password.ts
 import argon2 from "argon2";
 
 const password = process.argv[2];

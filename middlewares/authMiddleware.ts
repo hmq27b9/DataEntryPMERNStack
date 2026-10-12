@@ -1,5 +1,14 @@
+//middlewares/authMiddleware.ts
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+interface TokenPayload extends JwtPayload {
+  id: number;
+  email: string;
+}
+
+const SECRET = process.env.JWT_SECRET as string;
+if (!SECRET) throw new Error("JWT_SECRET is not defined in .env");
 
 const authMiddleware = (
   req: Request,
@@ -18,7 +27,7 @@ const authMiddleware = (
   }
 
   try {
-    const decoded = verifyToken(token);
+    const decoded = jwt.verify(token, SECRET) as TokenPayload;
     req.user = { id: decoded.id, email: decoded.email };
     next();
   } catch {

@@ -1,3 +1,4 @@
+//views/App.tsx
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginView from "./starterPages/LoginView";
 import DashboardView from "./starterPages/DashboardView";
