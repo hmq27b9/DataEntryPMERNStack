@@ -37,13 +37,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, username: user.username },
+      SECRET,
+      { expiresIn: "1h" },
+    );
 
     res.cookie("token", token, { httpOnly: true });
     res.json({
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
       token,
     });
   } catch (err) {
@@ -52,22 +58,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const me = async (req: Request, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-    const user = await UserModel.findById(req.user.id);
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-    res.json({ user });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+export const me = (req: Request, res: Response): void => {
+  if (!req.user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
+  // req.user came from the verified JWT — no DB lookup needed.
+  res.json({
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+    },
+  });
 };
 
 export const logout = (_req: Request, res: Response): void => {

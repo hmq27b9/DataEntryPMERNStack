@@ -5,6 +5,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 interface TokenPayload extends JwtPayload {
   id: number;
   email: string;
+  username: string;
 }
 
 const SECRET = process.env.JWT_SECRET as string;
@@ -28,7 +29,11 @@ const authMiddleware = (
 
   try {
     const decoded = jwt.verify(token, SECRET) as TokenPayload;
-    req.user = { id: decoded.id, email: decoded.email };
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      username: decoded.username,
+    };
     next();
   } catch {
     res.status(403).json({ error: "Invalid token" });
