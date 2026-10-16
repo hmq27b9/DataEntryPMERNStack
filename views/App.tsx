@@ -2,6 +2,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginView from "./starterPages/LoginView";
 import DashboardView from "./starterPages/DashboardView";
+import DataEntryPostgresView from "./dataEntryPostgresPages/DataEntryPostgresView";
 import { useAuth } from "./context/AuthContext";
 
 export default function App() {
@@ -37,6 +38,16 @@ export default function App() {
         path="/dashboard"
         element={
           isAuthenticated ? <DashboardView /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/data-entry-postgres"
+        element={
+          isAuthenticated ? (
+            <DataEntryPostgresView />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
       <Route
