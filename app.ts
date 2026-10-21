@@ -6,6 +6,7 @@ import path from "path";
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes";
+import dataEntryMongoRoutes from "./routes/dataEntryMongoRoutes";
 import dataEntryPostgresRoutes from "./routes/dataEntryPostgresRoutes";
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/data-entry-mongo", dataEntryMongoRoutes);
 app.use("/api/data-entry-postgres", dataEntryPostgresRoutes);
 
 app.get("/api", (_req: Request, res: Response) => {

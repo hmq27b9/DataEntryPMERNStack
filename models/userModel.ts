@@ -1,5 +1,5 @@
 //models/userModel.ts
-import pool from "../config/db";
+import pool from "../config/postgres";
 
 export interface User {
   id: number;

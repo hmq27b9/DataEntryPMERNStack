@@ -1,13 +1,13 @@
-//config/db.ts
+//config/postgres.ts
 import { Pool } from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.POSTGRES_URI;
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL is not defined in .env");
+  throw new Error("POSTGRES_URL is not defined in .env");
 }
 
 const pool = new Pool({

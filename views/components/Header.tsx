@@ -38,8 +38,11 @@ export default function Header({
             <Link to="/dashboard" style={styles.navLink}>
               dashboard
             </Link>
+            <Link to="/data-entry-mongo" style={styles.navLink}>
+              mongo data entry
+            </Link>
             <Link to="/data-entry-postgres" style={styles.navLink}>
-              data entry
+              postgres data entry
             </Link>
           </nav>
         )}

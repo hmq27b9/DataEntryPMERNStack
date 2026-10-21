@@ -2,6 +2,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginView from "./starterPages/LoginView";
 import DashboardView from "./starterPages/DashboardView";
+import DataEntryMongoView from "./dataEntryMongoPages/DataEntryMongoView";
 import DataEntryPostgresView from "./dataEntryPostgresPages/DataEntryPostgresView";
 import { useAuth } from "./context/AuthContext";
 
@@ -38,6 +39,16 @@ export default function App() {
         path="/dashboard"
         element={
           isAuthenticated ? <DashboardView /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="/data-entry-mongo"
+        element={
+          isAuthenticated ? (
+            <DataEntryMongoView />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
       <Route

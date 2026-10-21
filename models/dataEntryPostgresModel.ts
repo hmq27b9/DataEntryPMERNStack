@@ -1,5 +1,5 @@
 //models/dataEntryPostgresModel.ts
-import pool from "../config/db";
+import pool from "../config/postgres";
 
 export interface DataEntryPostgres {
   id: string;
