@@ -1,3 +1,4 @@
+//mobile/starterPages/LoginView.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,7 +12,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 
-export default function LoginScreen() {
+export default function LoginView() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

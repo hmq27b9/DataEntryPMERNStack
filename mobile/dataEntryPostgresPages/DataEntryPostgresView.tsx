@@ -1,3 +1,4 @@
+//mobile/dataEntryPostgresPages/DataEntryPostgresView.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -10,7 +11,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 
-interface DataEntryMongo {
+interface DataEntryPostgres {
   id: string;
   field_a: string;
   field_b: string;
@@ -39,21 +40,23 @@ const COLUMNS = [
   { key: 'field_c', label: 'field_c', required: false },
 ];
 
-export default function DataEntryMongoScreen() {
+const API_ENDPOINT = `${API_URL}/api/data-entry-postgres`;
+
+export default function DataEntryPostgresScreen() {
   const { token } = useAuth();
   const [rows, setRows] = useState<DraftRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`${API_URL}/api/data-entry-mongo`, {
+    fetch(API_ENDPOINT, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async res => {
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
         setRows(
-          data.entries.map((r: DataEntryMongo) => ({
+          data.entries.map((r: DataEntryPostgres) => ({
             id: r.id,
             field_a: r.field_a,
             field_b: r.field_b,
@@ -94,9 +97,7 @@ export default function DataEntryMongoScreen() {
 
     try {
       const res = await fetch(
-        row.id === null
-          ? `${API_URL}/api/data-entry-mongo`
-          : `${API_URL}/api/data-entry-mongo/${row.id}`,
+        row.id === null ? API_ENDPOINT : `${API_ENDPOINT}/${row.id}`,
         {
           method: row.id === null ? 'POST' : 'PUT',
           headers: {
@@ -129,7 +130,7 @@ export default function DataEntryMongoScreen() {
   const deleteRow = async (index: number) => {
     const row = rows[index];
     if (row.id !== null) {
-      await fetch(`${API_URL}/api/data-entry-mongo/${row.id}`, {
+      await fetch(`${API_ENDPOINT}/${row.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
