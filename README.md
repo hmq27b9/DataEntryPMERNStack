@@ -2,4 +2,4 @@
 
 npm install \
 npm install --prefix views \
-npm run dev:all \
+npm run dev:all
